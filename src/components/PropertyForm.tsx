@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppStore } from "@/lib/store";
 import { Property } from "@/lib/types";
 import { getCurrentUser, publishProperty } from "@/lib/api";
+import { LocationPicker } from "./LocationPicker";
 
 export function PropertyForm() {
   const navigate = useNavigate();
@@ -29,6 +29,10 @@ export function PropertyForm() {
     zip: "",
     type: "sale",
     images: [] as string[],
+    location: {
+      lat: 47.6101,
+      lng: -122.2015
+    }
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -36,6 +40,17 @@ export function PropertyForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
+  const handleLocationChange = (location: { lat: number; lng: number }) => {
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        lat: location.lat,
+        lng: location.lng
+      }
+    }));
+  };
+
   const handleTypeChange = (value: string) => {
     setFormData(prev => ({ ...prev, type: value }));
   };
@@ -93,14 +108,10 @@ export function PropertyForm() {
       return;
     }
     
-    // Prevent multiple submissions
-    if (isSubmitting) {
-      return;
-    }
+    if (isSubmitting) return;
     
     setIsSubmitting(true);
     
-    // Get current user
     const user = getCurrentUser();
     if (!user) {
       toast({
@@ -114,7 +125,6 @@ export function PropertyForm() {
     }
     
     try {
-      // Create a new property using the publishProperty API function
       const newPropertyData = {
         title: formData.title,
         description: formData.description,
@@ -127,9 +137,8 @@ export function PropertyForm() {
           city: formData.city,
           state: formData.state,
           zip: formData.zip,
-          // Generate unique coordinates based on address to prevent duplicates
-          lat: 47.6 + (Math.random() * 0.1 * (formData.address.length % 10) / 10),
-          lng: -122.3 + (Math.random() * 0.1 * (formData.city.length % 10) / 10),
+          lat: formData.location.lat,
+          lng: formData.location.lng
         },
         images: formData.images,
         featured: false,
@@ -143,12 +152,6 @@ export function PropertyForm() {
       toast({
         title: "Property Published!",
         description: "Your property listing has been published successfully",
-      });
-      
-      // Replace toast.success with the toast from sonner
-      toast({
-        title: "Success",
-        description: "Property published successfully! You can now view your property listing.",
       });
       
       navigate(`/property/${newProperty.id}`);
@@ -309,6 +312,11 @@ export function PropertyForm() {
             />
           </div>
         </div>
+
+        <LocationPicker
+          onChange={handleLocationChange}
+          initialLocation={formData.location}
+        />
       </div>
       
       <div className="space-y-4">
