@@ -18,10 +18,22 @@ export const login = async (email: string, password: string): Promise<User> => {
   // In a real app, this would make an API call
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const user = mockUsers.find(u => u.email === email);
-      if (user && password === 'password') { // Simple password check for demo
-        localStorage.setItem('user', JSON.stringify(user));
-        resolve(user);
+      // First check if the user exists in localStorage (newly registered users)
+      const registeredUsersJson = localStorage.getItem('registeredUsers');
+      const registeredUsers = registeredUsersJson ? JSON.parse(registeredUsersJson) : [];
+      
+      // Check if the user exists in either mock users or registered users
+      const registeredUser = registeredUsers.find((u: User) => u.email === email);
+      const mockUser = mockUsers.find(u => u.email === email);
+      
+      if (registeredUser && password === 'password') {
+        // Return the registered user
+        localStorage.setItem('user', JSON.stringify(registeredUser));
+        resolve(registeredUser);
+      } else if (mockUser && password === 'password') {
+        // Return the mock user
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        resolve(mockUser);
       } else {
         reject(new Error('Invalid email or password'));
       }
@@ -33,19 +45,35 @@ export const register = async (name: string, email: string, password: string): P
   // In a real app, this would make an API call
   return new Promise((resolve, reject) => {
     setTimeout(() => {
+      // Check mock users first
       if (mockUsers.some(u => u.email === email)) {
         reject(new Error('Email already in use'));
-      } else {
-        const newUser: User = {
-          id: `user${mockUsers.length + 1}`,
-          name,
-          email,
-          role: 'user',
-        };
-        // In a real app, we would save this user to the database
-        localStorage.setItem('user', JSON.stringify(newUser));
-        resolve(newUser);
+        return;
       }
+      
+      // Check registered users in localStorage
+      const registeredUsersJson = localStorage.getItem('registeredUsers');
+      const registeredUsers = registeredUsersJson ? JSON.parse(registeredUsersJson) : [];
+      
+      if (registeredUsers.some((u: User) => u.email === email)) {
+        reject(new Error('Email already in use'));
+        return;
+      }
+      
+      // Create a new user
+      const newUser: User = {
+        id: `user${Date.now()}${Math.random().toString(36).substring(2, 8)}`,
+        name,
+        email,
+        role: 'user',
+      };
+      
+      // Store the new user in localStorage
+      registeredUsers.push(newUser);
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+      localStorage.setItem('user', JSON.stringify(newUser));
+      
+      resolve(newUser);
     }, 500);
   });
 };
