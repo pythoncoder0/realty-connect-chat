@@ -294,3 +294,15 @@ export const publishProperty = async (propertyData: Omit<Property, 'id' | 'creat
     }, 800);
   });
 };
+
+// New function to reset password
+export const resetPassword = async (email: string): Promise<void> => {
+  // In a real app, this would make an API call to initiate password reset
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Simulate sending reset email
+      console.log(`Password reset requested for: ${email}`);
+      resolve();
+    }, 500);
+  });
+};

@@ -18,6 +18,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Add package for Leaflet
 import "leaflet/dist/leaflet.css";
@@ -50,6 +51,7 @@ const App = () => {
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:conversationId" element={<MessageDetail />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
