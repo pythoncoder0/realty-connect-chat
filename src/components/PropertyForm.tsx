@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAppStore } from "@/lib/store";
 import { Property } from "@/lib/types";
 import { getCurrentUser, publishProperty } from "@/lib/api";
-import { toast } from "sonner";
 
 export function PropertyForm() {
   const navigate = useNavigate();
@@ -140,9 +140,10 @@ export function PropertyForm() {
         description: "Your property listing has been published successfully",
       });
       
-      // Also show a toast notification for better user feedback
-      toast.success("Property published successfully!", {
-        description: "You can now view your property listing."
+      // Replace toast.success with the toast from sonner
+      toast({
+        title: "Success",
+        description: "Property published successfully! You can now view your property listing.",
       });
       
       navigate(`/property/${newProperty.id}`);
