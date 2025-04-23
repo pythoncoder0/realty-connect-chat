@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -11,6 +10,7 @@ import { Property } from "@/lib/types";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { mockUsers } from "@/lib/mockData";
 
 const PropertyDetail = () => {
   const { propertyId } = useParams<{ propertyId: string }>();
