@@ -1,6 +1,5 @@
-
 import axios from 'axios';
-import { Property, User, PropertyFilter, Message } from '@/lib/types';
+import { Property, User, PropertyFilter, Message, MessageConversation } from '@/lib/types';
 import { mockProperties, mockUsers, mockMessages } from '@/lib/mockData';
 
 // This is a mock API service that simulates API calls
@@ -161,5 +160,74 @@ export const sendMessage = async (
       
       resolve(newMessage);
     }, 200);
+  });
+};
+
+// User Conversations
+export const getUserConversations = async (userId: string): Promise<MessageConversation[]> => {
+  // In a real app, this would make an API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Create mock conversations based on the existing messages
+      const conversations: MessageConversation[] = [];
+      const processedChatIds = new Set();
+      
+      // Process all chat IDs to find unique conversations
+      Object.entries(mockMessages).forEach(([chatId, messages]) => {
+        if (messages.length === 0 || processedChatIds.has(chatId)) return;
+        
+        const lastMessage = messages[messages.length - 1];
+        
+        // Check if the user is part of this conversation
+        const isUserSender = lastMessage.senderId === userId;
+        const isUserReceiver = lastMessage.receiverId === userId;
+        
+        if (!isUserSender && !isUserReceiver) return;
+        
+        // Find the property related to this chat
+        const [propertyId] = chatId.split('_');
+        const property = mockProperties.find(p => p.id === propertyId);
+        if (!property) return;
+        
+        // Determine the other user in the conversation
+        const otherUserId = isUserSender ? lastMessage.receiverId : lastMessage.senderId;
+        const otherUser = mockUsers.find(u => u.id === otherUserId);
+        if (!otherUser) return;
+        
+        conversations.push({
+          id: chatId,
+          propertyId: property.id,
+          propertyTitle: property.title,
+          otherUserId: otherUser.id,
+          otherUserName: otherUser.name,
+          lastMessageText: lastMessage.text,
+          lastMessageAt: lastMessage.timestamp,
+          unreadCount: Math.floor(Math.random() * 3) // Random unread count for demo
+        });
+        
+        processedChatIds.add(chatId);
+      });
+      
+      resolve(conversations);
+    }, 800);
+  });
+};
+
+// New function to publish a property
+export const publishProperty = async (propertyData: Omit<Property, 'id' | 'createdAt'>): Promise<Property> => {
+  // In a real app, this would make an API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newProperty: Property = {
+        ...propertyData,
+        id: `property${mockProperties.length + 1}`,
+        createdAt: new Date().toISOString(),
+      };
+      
+      // In a real app, we would save this to the database
+      mockProperties.unshift(newProperty);
+      
+      resolve(newProperty);
+    }, 800);
   });
 };

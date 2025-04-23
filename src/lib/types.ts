@@ -40,6 +40,17 @@ export interface Message {
   timestamp: string;
 }
 
+export interface MessageConversation {
+  id: string;
+  propertyId: string;
+  propertyTitle: string;
+  otherUserId: string;
+  otherUserName: string;
+  lastMessageText: string;
+  lastMessageAt: string;
+  unreadCount: number;
+}
+
 export interface PropertyFilter {
   type?: 'sale' | 'rent' | 'all';
   minPrice?: number;
