@@ -78,6 +78,13 @@ export function PropertyMap({
       }
     }
     
+    // Ensure map is resized properly when container becomes visible
+    setTimeout(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    }, 100);
+    
     // Cleanup
     return () => {
       // Don't destroy the map on component unmount, just let it persist
@@ -94,6 +101,7 @@ export function PropertyMap({
       ref={mapRef} 
       className="rounded-lg overflow-hidden"
       style={{ height }}
+      data-testid="property-map"
     ></div>
   );
 }

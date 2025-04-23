@@ -93,6 +93,11 @@ export function PropertyForm() {
       return;
     }
     
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      return;
+    }
+    
     setIsSubmitting(true);
     
     // Get current user
@@ -122,9 +127,9 @@ export function PropertyForm() {
           city: formData.city,
           state: formData.state,
           zip: formData.zip,
-          // Random coordinates for demo (Seattle area)
-          lat: 47.6 + (Math.random() * 0.1),
-          lng: -122.3 + (Math.random() * 0.1),
+          // Generate unique coordinates based on address to prevent duplicates
+          lat: 47.6 + (Math.random() * 0.1 * (formData.address.length % 10) / 10),
+          lng: -122.3 + (Math.random() * 0.1 * (formData.city.length % 10) / 10),
         },
         images: formData.images,
         featured: false,

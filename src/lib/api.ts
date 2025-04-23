@@ -68,9 +68,19 @@ export const getProperties = async (): Promise<Property[]> => {
   // In a real app, this would make an API call to fetch remote properties
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Combine mock properties with any local properties
-      const allProperties = [...localProperties, ...mockProperties];
-      resolve(allProperties);
+      // Make sure to create a new array to prevent reference issues
+      const allProperties = [...localProperties, ...mockProperties.map(p => ({...p}))];
+      
+      // Ensure all properties have unique IDs
+      const uniqueProperties = allProperties.reduce((acc: Property[], current) => {
+        const exists = acc.find(p => p.id === current.id);
+        if (!exists) {
+          acc.push(current);
+        }
+        return acc;
+      }, []);
+      
+      resolve(uniqueProperties);
     }, 500);
   });
 };
@@ -234,9 +244,12 @@ export const publishProperty = async (propertyData: Omit<Property, 'id' | 'creat
   // In a real app, this would make an API call
   return new Promise((resolve) => {
     setTimeout(() => {
+      // Generate a truly unique ID using timestamp and random string
+      const uniqueId = `property${Date.now()}${Math.random().toString(36).substring(2, 8)}`;
+      
       const newProperty: Property = {
         ...propertyData,
-        id: `property${Date.now()}`,
+        id: uniqueId,
         createdAt: new Date().toISOString(),
       };
       
@@ -246,8 +259,8 @@ export const publishProperty = async (propertyData: Omit<Property, 'id' | 'creat
       const updatedProperties = [newProperty, ...existingProperties];
       localStorage.setItem('properties', JSON.stringify(updatedProperties));
       
-      // Also add to mock data for current session
-      mockProperties.unshift(newProperty);
+      // Add to mock data for current session (make a separate copy)
+      mockProperties.unshift({...newProperty});
       
       resolve(newProperty);
     }, 800);
