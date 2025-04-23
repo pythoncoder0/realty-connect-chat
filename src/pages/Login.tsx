@@ -1,55 +1,78 @@
 
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Navbar } from "@/components/Navbar";
-import { useAppStore } from "@/lib/store";
 import { login } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
+
+interface LocationState {
+  from?: string;
+}
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  const setUser = useAppStore((state) => state.setUser);
+  const { setUser } = useAppStore();
+  
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  
+  // Get the previous location if available
+  const locationState = location.state as LocationState;
+  const from = locationState?.from || "/";
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!formData.email || !formData.password) {
       toast({
-        variant: "destructive",
         title: "Error",
         description: "Please enter both email and password",
+        variant: "destructive",
       });
       return;
     }
     
-    setIsLoading(true);
+    setLoading(true);
     
     try {
-      // For the demo, use any of the mock users with password "password"
-      const user = await login(email, password);
+      // For demo purposes, use these test credentials:
+      // Email: user@example.com
+      // Password: password
+      const user = await login(formData.email, formData.password);
       setUser(user);
       
       toast({
-        title: "Success",
-        description: "You have been logged in successfully",
+        title: "Login Successful",
+        description: `Welcome back, ${user.name}!`,
       });
       
-      navigate("/");
+      // Redirect to the page the user was trying to access or home
+      navigate(from);
     } catch (error) {
       toast({
+        title: "Login Failed",
+        description: "Invalid email or password. Try user@example.com / password",
         variant: "destructive",
-        title: "Login failed",
-        description: "Invalid email or password. Try john@example.com with password 'password'",
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
@@ -57,25 +80,26 @@ const Login = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-1 flex items-center justify-center py-12">
-        <div className="mx-auto w-full max-w-md space-y-6 px-4">
-          <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold">Login to RealtyConnect</h1>
-            <p className="text-muted-foreground">
-              Enter your credentials to access your account
+      <main className="container py-8 flex-1 flex items-center justify-center">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">Welcome Back</h1>
+            <p className="text-muted-foreground mt-2">
+              Log in to access your account
             </p>
           </div>
           
-          <div className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
-                  placeholder="john@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -83,47 +107,45 @@ const Login = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-primary underline-offset-4 hover:underline"
+                  <a
+                    href="#"
+                    className="text-sm font-medium text-primary hover:underline"
                   >
                     Forgot password?
-                  </Link>
+                  </a>
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                 />
               </div>
-              
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
+            </div>
+            
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </Button>
             
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link to="/register" className="text-primary underline-offset-4 hover:underline">
+              <span className="text-muted-foreground">
+                Don't have an account?{" "}
+              </span>
+              <a
+                href="/register"
+                className="font-medium text-primary hover:underline"
+              >
                 Sign up
-              </Link>
+              </a>
             </div>
-            
-            <div className="mt-6 rounded-lg border bg-muted/40 p-4">
-              <p className="text-sm text-muted-foreground text-center">
-                For demo, use any of these accounts:
-                <br />
-                john@example.com / password
-                <br />
-                sarah@example.com / password
-                <br />
-                michael@example.com / password
-              </p>
-            </div>
-          </div>
+          </form>
         </div>
       </main>
     </div>

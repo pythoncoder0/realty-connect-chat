@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyFilters } from "@/components/PropertyFilters";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { PropertyFilter } from "@/lib/types";
 
 const Listings = () => {
-  const { properties, filteredProperties, setProperties, setFilteredProperties } = useAppStore();
+  const { properties, filteredProperties, setProperties, setFilteredProperties, user } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [showMap, setShowMap] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
@@ -61,7 +61,17 @@ const Listings = () => {
       <Navbar />
       
       <main className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold mb-8">Property Listings</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Property Listings</h1>
+          
+          {user && (
+            <Link to="/publish">
+              <Button>
+                + Add New Property
+              </Button>
+            </Link>
+          )}
+        </div>
         
         <div className="flex justify-between items-center mb-6">
           <p className="text-muted-foreground">

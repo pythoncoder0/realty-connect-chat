@@ -38,6 +38,11 @@ export function Navbar() {
               <Link to="/messages" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                 Messages
               </Link>
+              <Link to="/publish">
+                <Button size="sm" variant="outline" className="hidden md:inline-flex">
+                  + Add Property
+                </Button>
+              </Link>
               <span className="text-sm font-medium">
                 Welcome, {user.name}
               </span>
