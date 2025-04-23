@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -25,7 +24,6 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   
-  // Get the previous location if available
   const locationState = location.state as LocationState;
   const from = locationState?.from || "/";
   
@@ -52,9 +50,6 @@ const Login = () => {
     setLoading(true);
     
     try {
-      // For demo purposes, use these test credentials:
-      // Email: user@example.com
-      // Password: password
       const user = await login(formData.email, formData.password);
       setUser(user);
       
@@ -63,8 +58,7 @@ const Login = () => {
         description: `Welcome back, ${user.name}!`,
       });
       
-      // Redirect to the page the user was trying to access or home
-      navigate(from);
+      navigate('/dashboard');
     } catch (error) {
       toast({
         title: "Login Failed",
