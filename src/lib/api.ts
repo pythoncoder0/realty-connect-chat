@@ -61,16 +61,32 @@ export const logout = () => {
 
 // Properties
 export const getProperties = async (): Promise<Property[]> => {
-  // In a real app, this would make an API call
+  // Check local storage first for any published properties
+  const savedProperties = localStorage.getItem('properties');
+  const localProperties = savedProperties ? JSON.parse(savedProperties) : [];
+  
+  // In a real app, this would make an API call to fetch remote properties
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(mockProperties);
+      // Combine mock properties with any local properties
+      const allProperties = [...localProperties, ...mockProperties];
+      resolve(allProperties);
     }, 500);
   });
 };
 
 export const getPropertyById = async (id: string): Promise<Property> => {
-  // In a real app, this would make an API call
+  // Check local storage first
+  const savedProperties = localStorage.getItem('properties');
+  const localProperties = savedProperties ? JSON.parse(savedProperties) : [];
+  const localProperty = localProperties.find((p: Property) => p.id === id);
+  
+  // If found in local storage, return it
+  if (localProperty) {
+    return Promise.resolve(localProperty);
+  }
+  
+  // Otherwise check mock data
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const property = mockProperties.find(p => p.id === id);
@@ -220,11 +236,17 @@ export const publishProperty = async (propertyData: Omit<Property, 'id' | 'creat
     setTimeout(() => {
       const newProperty: Property = {
         ...propertyData,
-        id: `property${mockProperties.length + 1}`,
+        id: `property${Date.now()}`,
         createdAt: new Date().toISOString(),
       };
       
-      // In a real app, we would save this to the database
+      // Save to local storage for persistence
+      const savedProperties = localStorage.getItem('properties');
+      const existingProperties = savedProperties ? JSON.parse(savedProperties) : [];
+      const updatedProperties = [newProperty, ...existingProperties];
+      localStorage.setItem('properties', JSON.stringify(updatedProperties));
+      
+      // Also add to mock data for current session
       mockProperties.unshift(newProperty);
       
       resolve(newProperty);

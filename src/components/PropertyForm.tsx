@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,12 +8,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppStore } from "@/lib/store";
 import { Property } from "@/lib/types";
-import { getCurrentUser } from "@/lib/api";
+import { getCurrentUser, publishProperty } from "@/lib/api";
+import { toast } from "sonner";
 
 export function PropertyForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { properties, setProperties } = useAppStore();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,8 +42,6 @@ export function PropertyForm() {
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // In a real app with backend, we'd upload these files
-      // For our mock version, we'll create URL representations
       const newImages = Array.from(e.target.files).map(file => 
         URL.createObjectURL(file)
       );
@@ -63,7 +60,7 @@ export function PropertyForm() {
     }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
@@ -111,43 +108,54 @@ export function PropertyForm() {
       return;
     }
     
-    // Create a new property
-    const newProperty: Property = {
-      id: `prop${Date.now()}`,
-      title: formData.title,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      bedrooms: parseInt(formData.bedrooms),
-      bathrooms: parseInt(formData.bathrooms),
-      area: parseInt(formData.area),
-      location: {
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zip: formData.zip,
-        // Random coordinates for demo (Seattle area)
-        lat: 47.6 + (Math.random() * 0.1),
-        lng: -122.3 + (Math.random() * 0.1),
-      },
-      images: formData.images,
-      featured: false,
-      type: formData.type as 'sale' | 'rent',
-      createdAt: new Date().toISOString(),
-      ownerId: user.id,
-      ownerName: user.name,
-    };
-    
-    // In a real app, we'd make an API call to save the property
-    // For our mock version, we'll add it to our local store
-    setProperties([newProperty, ...properties]);
-    
-    toast({
-      title: "Property Published!",
-      description: "Your property listing has been published successfully",
-    });
-    
-    setIsSubmitting(false);
-    navigate(`/property/${newProperty.id}`);
+    try {
+      // Create a new property using the publishProperty API function
+      const newPropertyData = {
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        bedrooms: parseInt(formData.bedrooms),
+        bathrooms: parseInt(formData.bathrooms),
+        area: parseInt(formData.area),
+        location: {
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zip: formData.zip,
+          // Random coordinates for demo (Seattle area)
+          lat: 47.6 + (Math.random() * 0.1),
+          lng: -122.3 + (Math.random() * 0.1),
+        },
+        images: formData.images,
+        featured: false,
+        type: formData.type as 'sale' | 'rent',
+        ownerId: user.id,
+        ownerName: user.name,
+      };
+      
+      const newProperty = await publishProperty(newPropertyData);
+      
+      toast({
+        title: "Property Published!",
+        description: "Your property listing has been published successfully",
+      });
+      
+      // Also show a toast notification for better user feedback
+      toast.success("Property published successfully!", {
+        description: "You can now view your property listing."
+      });
+      
+      navigate(`/property/${newProperty.id}`);
+    } catch (error) {
+      console.error("Error publishing property:", error);
+      toast({
+        title: "Publication Failed",
+        description: "There was an error publishing your property. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (

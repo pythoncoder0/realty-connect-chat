@@ -10,6 +10,8 @@ import { getProperties, filterProperties } from "@/lib/api";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { PropertyFilter } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const Listings = () => {
   const { properties, filteredProperties, setProperties, setFilteredProperties, user } = useAppStore();
@@ -17,11 +19,21 @@ const Listings = () => {
   const [showMap, setShowMap] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
   const [searchParams] = useSearchParams();
+  const { toast: useToastFunc } = useToast();
   
   useEffect(() => {
     const fetchProperties = async () => {
       try {
+        setLoading(true);
         const fetchedProperties = await getProperties();
+        
+        if (fetchedProperties.length === 0) {
+          useToastFunc({
+            title: "No properties found",
+            description: "There are no properties in the system yet.",
+          });
+        }
+        
         setProperties(fetchedProperties);
         
         // Apply search query from URL if present
@@ -32,13 +44,14 @@ const Listings = () => {
         }
       } catch (error) {
         console.error("Failed to fetch properties:", error);
+        toast.error("Failed to load properties");
       } finally {
         setLoading(false);
       }
     };
     
     fetchProperties();
-  }, [setProperties, setFilteredProperties, searchParams]);
+  }, [setProperties, setFilteredProperties, searchParams, useToastFunc]);
   
   // Sort properties
   const sortedProperties = [...filteredProperties].sort((a, b) => {
@@ -101,7 +114,7 @@ const Listings = () => {
           </div>
         </div>
         
-        {showMap && (
+        {showMap && sortedProperties.length > 0 && (
           <div className="mb-8 h-[400px] rounded-lg overflow-hidden border">
             <PropertyMap properties={sortedProperties} />
           </div>
@@ -129,8 +142,13 @@ const Listings = () => {
               <div className="text-center py-12">
                 <h3 className="text-xl font-semibold mb-2">No properties found</h3>
                 <p className="text-muted-foreground">
-                  Try adjusting your filters to find properties.
+                  Try adjusting your filters to find properties or add a new one.
                 </p>
+                {user && (
+                  <Button className="mt-4" asChild>
+                    <Link to="/publish">Publish a Property</Link>
+                  </Button>
+                )}
               </div>
             )}
           </div>

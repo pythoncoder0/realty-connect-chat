@@ -14,6 +14,7 @@ import Listings from "./pages/Listings";
 import PropertyDetail from "./pages/PropertyDetail";
 import PublishProperty from "./pages/PublishProperty";
 import Messages from "./pages/Messages";
+import MessageDetail from "./pages/MessageDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,7 @@ const App = () => {
             <Route path="/property/:propertyId" element={<PropertyDetail />} />
             <Route path="/publish" element={<PublishProperty />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/:conversationId" element={<MessageDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />

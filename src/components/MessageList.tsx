@@ -15,7 +15,7 @@ export function MessageList({ conversations }: MessageListProps) {
       {conversations.map((conversation) => (
         <Link 
           key={conversation.id} 
-          to={`/property/${conversation.propertyId}`}
+          to={`/messages/${conversation.id}`}
           className="block"
         >
           <div className="border rounded-lg p-4 hover:border-primary transition-colors">
@@ -35,7 +35,15 @@ export function MessageList({ conversations }: MessageListProps) {
                 <div className="text-sm text-muted-foreground">
                   {formatDate(conversation.lastMessageAt)}
                 </div>
-                <Button variant="ghost" size="sm" className="mt-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="mt-1" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = `/property/${conversation.propertyId}`;
+                  }}
+                >
                   View Property
                 </Button>
               </div>
@@ -43,6 +51,13 @@ export function MessageList({ conversations }: MessageListProps) {
             <div className="mt-2 text-sm line-clamp-1 text-muted-foreground">
               {conversation.lastMessageText}
             </div>
+            {conversation.unreadCount > 0 && (
+              <div className="mt-2 flex justify-end">
+                <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5">
+                  {conversation.unreadCount} new
+                </span>
+              </div>
+            )}
           </div>
         </Link>
       ))}
