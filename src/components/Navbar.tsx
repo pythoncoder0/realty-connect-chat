@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/lib/store";
@@ -26,9 +25,6 @@ export function Navbar() {
             </Link>
             <Link to="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
               About
-            </Link>
-            <Link to="/contact" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-              Contact
             </Link>
           </nav>
         </div>

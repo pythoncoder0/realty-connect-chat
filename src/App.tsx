@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import About from "./pages/About"; // Add the import for About page
 
 // Add package for Leaflet
 import "leaflet/dist/leaflet.css";
@@ -46,6 +48,7 @@ const App = () => {
             <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/listings" element={<Listings />} />
+            <Route path="/about" element={<About />} /> {/* Add the About route */}
             <Route path="/property/:propertyId" element={<PropertyDetail />} />
             <Route path="/publish" element={<PublishProperty />} />
             <Route path="/messages" element={<Messages />} />
